@@ -1,0 +1,15 @@
+{
+  "name": "docker_spctcl",
+  "version": "0.0.1j",
+  "description": "spctcl node server",
+  "author": "Brent Schambaugh <brent.shambaugh@gmail.com>",
+  "author": "Erik Young <erik@spctcl.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.2",
+    "elliptic": "6.5.4"
+  }
+}

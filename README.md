@@ -1,94 +1,48 @@
-# spctcl
-
-1) Set up docker with node::::
-
+README.md
+Set up docker with node::::
 https://github.com/nodejs/docker-node
 
-2) Run a websockets server there :::
+Run a websockets server there :::
+/websocket_example.js***********************/
 
-/**************************websocket_example.js*************************************************/
+var http = require('http'); const server = http.createServer();
 
-var http = require('http');
-const server = http.createServer();
+//this snippet gets the local ip of the node.js server. copy this ip to the client side code and add ':3000' ***** //exmpl. 192.168.56.1---> var sock =new WebSocket("ws://192.168.56.1:3000");****** require('dns').lookup(require('os').hostname(), function (err, add, fam) { console.log('addr: '+add); })
 
-//***************this snippet gets the local ip of the node.js server. copy this ip to the client side code and add ':3000' *****
-//****************exmpl. 192.168.56.1---> var sock =new WebSocket("ws://192.168.56.1:3000");*************************************
-require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-  console.log('addr: '+add);
-})
+/websocket setup****************************************************************/ //var expressWs = require('express-ws')(app,server); const WebSocket = require('ws'); const s = new WebSocket.Server({ server });
 
-/**********************websocket setup**************************************************************************************/
-//var expressWs = require('express-ws')(app,server);
-const WebSocket = require('ws');
-const s = new WebSocket.Server({ server });
+//************************************************************************************************************************* //ws chat server*****************************************************
 
-//*************************************************************************************************************************
-//***************************ws chat server********************************************************************************
+//app.ws('/echo', function(ws, req) { s.on('connection',function(ws,req){
 
-//app.ws('/echo', function(ws, req) {
-s.on('connection',function(ws,req){
+ws.on('close', function(){ console.log("lost one client"); }); ws.send("new client connected"); console.log("new client connected");
 
-ws.on('close', function(){
-console.log("lost one client");
-});
-ws.send("new client connected");
-console.log("new client connected");
+var interval = setInterval(function(){ console.log('Hello World'); ws.send("getSignature"); ws.send("getPublicKey"); }, 2000);
 
-var interval = setInterval(function(){
-  console.log('Hello World');
-  ws.send("getSignature");
-  ws.send("getPublicKey");
-}, 2000);
-
-ws.on('message', function message(data) {
-  console.log('received: %s', data);
-});
+ws.on('message', function message(data) { console.log('received: %s', data); });
 
 });
 
 server.listen(3000);
 
+Set up a Node.js server on local machine (outside of docker) or in another docker container if possible ... && run a websockets server there....
+/websocket_example.js***********************/
 
-3) Set up a Node.js server on local machine (outside of docker) or in another docker container if possible ...
-&& run a websockets server there....
+var http = require('http'); const server = http.createServer();
 
-/**************************websocket_example.js*************************************************/
+//this snippet gets the local ip of the node.js server. copy this ip to the client side code and add ':3000' ***** //exmpl. 192.168.56.1---> var sock =new WebSocket("ws://192.168.56.1:3000");****** require('dns').lookup(require('os').hostname(), function (err, add, fam) { console.log('addr: '+add); })
 
-var http = require('http');
-const server = http.createServer();
+/websocket setup****************************************************************/ //var expressWs = require('express-ws')(app,server); const WebSocket = require('ws'); const s = new WebSocket.Server({ server });
 
-//***************this snippet gets the local ip of the node.js server. copy this ip to the client side code and add ':3000' *****
-//****************exmpl. 192.168.56.1---> var sock =new WebSocket("ws://192.168.56.1:3000");*************************************
-require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-  console.log('addr: '+add);
-})
+//************************************************************************************************************************* //ws chat server*****************************************************
 
-/**********************websocket setup**************************************************************************************/
-//var expressWs = require('express-ws')(app,server);
-const WebSocket = require('ws');
-const s = new WebSocket.Server({ server });
+//app.ws('/echo', function(ws, req) { s.on('connection',function(ws,req){
 
-//*************************************************************************************************************************
-//***************************ws chat server********************************************************************************
+ws.on('close', function(){ console.log("lost one client"); }); ws.send("new client connected"); console.log("new client connected");
 
-//app.ws('/echo', function(ws, req) {
-s.on('connection',function(ws,req){
+var interval = setInterval(function(){ console.log('Hello World'); ws.send("getSignature"); ws.send("getPublicKey"); }, 2000);
 
-ws.on('close', function(){
-console.log("lost one client");
-});
-ws.send("new client connected");
-console.log("new client connected");
-
-var interval = setInterval(function(){
-  console.log('Hello World');
-  ws.send("getSignature");
-  ws.send("getPublicKey");
-}, 2000);
-
-ws.on('message', function message(data) {
-  console.log('received: %s', data);
-});
+ws.on('message', function message(data) { console.log('received: %s', data); });
 
 });
 

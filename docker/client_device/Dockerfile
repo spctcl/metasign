@@ -3,7 +3,7 @@ FROM node:16
 # Create app directory.
 WORKDIR /client_device
 
-ENV CLIENT_DEVICE=client_device.js
+ENV CLIENT_DEVICE = client_device.js
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -11,12 +11,12 @@ ENV CLIENT_DEVICE=client_device.js
 COPY package*.json .
 RUN npm install
 
+COPY client_device.js .
+
 # If you are building your code for production
 # RUN npm ci --only=production
 
-COPY client_device.js .
+EXPOSE 3001
 
-
-EXPOSE 3000
-
-CMD [ "node", "client_device.js" ]
+#CMD [ "node", "client_device.js" ]
+CMD node client_device.js

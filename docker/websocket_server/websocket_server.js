@@ -10,5 +10,5 @@ const request = function (req, res) {
 
 const server = http.createServer(request);
 console.log("websocket_server server created.")
-console.log("websocket_server listening on port 3001...")
-server.listen(3000);
+console.log("websocket_server listening on port 3000...")
+server.listen(3000)

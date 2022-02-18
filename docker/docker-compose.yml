@@ -2,8 +2,8 @@ version: "3.9"  # optional since v1.27.0
 services:
   websocket_server:
     build:
-      context: .
-      dockerfile: websocket_server/Dockerfile
+      context: ../
+      dockerfile: docker/websocket_server/Dockerfile
     image: "websocket_server"
     ports:
       # The following binds container's TCP port 3000 to the host's port 3000.
@@ -14,8 +14,8 @@ services:
     container_name: websocket_server
   client_device:
     build: 
-      context: .
-      dockerfile: client_device/Dockerfile
+      context: ../
+      dockerfile: docker/client_device/Dockerfile
     image: "client_device"
     ports:
       - "3001:3001"

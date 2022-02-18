@@ -8,10 +8,10 @@ ENV WEBSOCKET_SERVER = websocket_server.js
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+).
-COPY websocket_server/package*.json .
+COPY node/websocket_server/package*.json .
 RUN npm install
 
-COPY websocket_server/websocket_server.js .
+COPY node/websocket_server/websocket_server.js .
 
 # If you are building your code for production
 # RUN npm ci --only=production

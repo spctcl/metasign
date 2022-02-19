@@ -6,10 +6,11 @@
   "author": "Erik Young <erik@spctcl.io",
   "main": "websocket_server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node websocket_server.js"
   },
   "dependencies": {
     "express": "^4.17.2",
-    "elliptic": "^6.5.4"
+    "elliptic": "^6.5.4",
+    "ws": "^8.5.0"
   }
 }

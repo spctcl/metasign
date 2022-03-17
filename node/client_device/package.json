@@ -2,12 +2,14 @@
   "name": "spctcl_client_device",
   "version": "0.0.1",
   "description": "spctcl node server",
-  "author": "Erik Young <erik@spctcl.io",
+  "author": "Erik Young <erik@spctcl.io>",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "client_device.js"
   },
   "dependencies": {
+    "@ceramicnetwork/stream-tile": "^1.5.7",
     "did-jwt": "^5.12.4",
     "elliptic": "^6.5.4",
     "express": "^4.17.2"

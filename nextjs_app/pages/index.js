@@ -1,3 +1,7 @@
+import { CeramicClient } from '@ceramicnetwork/http-client'
+import { DID } from 'dids'
+import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
+import { getResolver as getKeyResolver } from 'key-did-resolver'
 import { ethers } from 'ethers'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -6,18 +10,10 @@ import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
 import { WalletConnectProvider } from '@walletconnect/web3-provider';
 import Web3Modal from "web3modal";
 
-// import { CeramicClient } from '@ceramicnetwork/http-client'
-// import { DID } from 'dids'
-// import { getResolver as getKeyResolver } from 'key-did-resolver'
-// import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
-
-
 export default function Home(props) {
   // const [state, dispatch] = useReducer(reducer, initialState)
   // const { provider, web3Provider, address, chainId } = state
   const infuraId = process.env.NEXT_PUBLIC_ENV_LOCAL_INFURA_ID;
-
-
 
   const authenticate = async () => {
     console.log("Authenticate...");
@@ -58,6 +54,18 @@ export default function Home(props) {
     console.log("addresses[0]: ", addresses[0]);
     const ethereumAuthProvider = new EthereumAuthProvider(ethProvider, addresses[0]);
     await threeIDConnect.connect(ethereumAuthProvider)
+
+    const ceramic = new CeramicClient();
+    const did = new DID({
+      provider: threeIDConnect.getDidProvider(),
+      resolver: {
+        ...get3IDResolver(ceramic),
+        ...getKeyResolver(),
+      }
+    })
+
+    await did.authenticate();
+    ceramic.did = did;
   }
 
   return (

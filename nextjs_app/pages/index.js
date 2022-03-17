@@ -15,6 +15,9 @@ export default function Home(props) {
   // const { provider, web3Provider, address, chainId } = state
   const infuraId = process.env.NEXT_PUBLIC_ENV_LOCAL_INFURA_ID;
 
+  const API_URL = "http://localhost:7007"
+  const ceramic = new CeramicClient(API_URL);
+
   const authenticate = async () => {
     console.log("Authenticate...");
 
@@ -55,7 +58,6 @@ export default function Home(props) {
     const ethereumAuthProvider = new EthereumAuthProvider(ethProvider, addresses[0]);
     await threeIDConnect.connect(ethereumAuthProvider)
 
-    const ceramic = new CeramicClient();
     const did = new DID({
       provider: threeIDConnect.getDidProvider(),
       resolver: {
@@ -64,8 +66,13 @@ export default function Home(props) {
       }
     })
 
-    await did.authenticate();
+    // Trigger the authentication flow for the DID using 3ID Connect's 3ID provider. 
+    const res = await did.authenticate()
+    console.log("res: ", res);
+    
+    // Set DID instance on the Ceramic HTTP client.
     ceramic.did = did;
+    console.log(ceramic.did);
   }
 
   return (

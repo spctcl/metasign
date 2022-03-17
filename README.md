@@ -1,4 +1,7 @@
-# spctcl Setup
+#### MetaSign
+
+# What is this project?
+# Setup
 
 ## Starting Docker containers:
 #### From `spctcl/docker` run:

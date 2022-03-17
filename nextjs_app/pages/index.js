@@ -17,16 +17,47 @@ export default function Home(props) {
   // const { provider, web3Provider, address, chainId } = state
   const infuraId = process.env.NEXT_PUBLIC_ENV_LOCAL_INFURA_ID;
 
+
+
   const authenticate = async () => {
     console.log("Authenticate...");
-    console.log("Infura ID: ", infuraId);
 
     // Connect to Metamask.
     const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    
+    // Get accounts.
+    console.log(await provider.listAccounts());
     await ethereum.enable;
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
-    console.log("Account:", await signer.getAddress());   
+    console.log("signer: ", signer);
+    const address = await signer.getAddress();
+    console.log("account address:", address); 
+
+    const threeIDConnect = new ThreeIdConnect();
+
+    // Instantiate Web3Modal with the desired providers.
+    const providerOptions = {
+      package: WalletConnectProvider,
+      options: {
+        infuraId: infuraId,
+      }
+    }
+
+    const web3Modal = new Web3Modal({
+      walletconnect: {
+        network: 'mainnet',
+        cacheProvider: true,
+        providerOptions: providerOptions
+      }
+    })
+
+    // Connect using Web3Modal.
+    const ethProvider = await web3Modal.connect();
+    const addresses = await ethProvider.enable();
+    console.log("addresses[0]: ", addresses[0]);
+    const ethereumAuthProvider = new EthereumAuthProvider(ethProvider, addresses[0]);
+    await threeIDConnect.connect(ethereumAuthProvider)
   }
 
   return (

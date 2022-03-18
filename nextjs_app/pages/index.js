@@ -79,7 +79,7 @@ export default function Home(props) {
     console.log(ceramic.did);
   }
 
-  const createTileDocument= async (content, schema) => {
+  const createUserDocument= async (content, schema) => {
     const schemaID = await createSchemaDocument()
     const documentID = await createDocument({ name: 'User 1' }, schemaID);
     console.log("documentID: ", documentID);
@@ -109,6 +109,27 @@ export default function Home(props) {
         console.log("userSchema.commitID ", userSchema.commitId);
 
         return userSchema.commitID
+  }
+
+  const createDeviceSchemaDocument = async () => {
+            // First we need to create a schema.
+            const deviceSchema = await TileDocument.create(ceramic, {
+              $schema: 'http://json-schema.org/draft-07/schema#',
+              title: 'UserSchema',
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  maxLength: 150.
+                },
+              },
+              required: ['deviceName'],
+            })
+    
+            console.log("deviceSchema: ", deviceSchema);
+            console.log("deviceSchema.commitID ", deviceSchema.commitId);
+    
+            return deviceSchema.commitID
   }
 
   return (

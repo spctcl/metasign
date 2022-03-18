@@ -1,5 +1,7 @@
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { DID } from 'dids'
+import { DataModel } from '@glazed/datamodel'
+import { DIDDataStore } from '@glazed/did-datastore' // This implements the Identity Index (IDX) protocol and allows Ceramic tiles to be associated with a DID.
 import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
 import { getResolver as getKeyResolver } from 'key-did-resolver'
 import { ethers } from 'ethers'
@@ -7,6 +9,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
+import { TileDocument } from '@ceramicnetwork/stream-tile';
 import { WalletConnectProvider } from '@walletconnect/web3-provider';
 import Web3Modal from "web3modal";
 
@@ -15,6 +18,7 @@ export default function Home(props) {
   // const { provider, web3Provider, address, chainId } = state
   const infuraId = process.env.NEXT_PUBLIC_ENV_LOCAL_INFURA_ID;
 
+  // Instantiate Ceramic HTTP client.
   const API_URL = "http://localhost:7007"
   const ceramic = new CeramicClient(API_URL);
 
@@ -75,6 +79,38 @@ export default function Home(props) {
     console.log(ceramic.did);
   }
 
+  const createTileDocument= async (content, schema) => {
+    const schemaID = await createSchemaDocument()
+    const documentID = await createDocument({ name: 'User 1' }, schemaID);
+    console.log("documentID: ", documentID);
+  }
+
+  const createDocument = async (content, schema) => {
+    const document = await TileDocument.create(ceramic, content, { schema })
+    return document.id
+  }
+
+  const createSchemaDocument = async () => {
+        // First we need to create a schema.
+        const userSchema = await TileDocument.create(ceramic, {
+          $schema: 'http://json-schema.org/draft-07/schema#',
+          title: 'UserSchema',
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              maxLength: 150.
+            },
+          },
+          required: ['name'],
+        })
+
+        console.log("userSchema: ", userSchema);
+        console.log("userSchema.commitID ", userSchema.commitId);
+
+        return userSchema.commitID
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -85,6 +121,7 @@ export default function Home(props) {
 
       <main className={styles.main}>
         <button onClick={authenticate}>Authenticate</button>
+        <button onClick={createTileDocument}>Create Tile Document</button>
       </main>
 
       <footer className={styles.footer}>

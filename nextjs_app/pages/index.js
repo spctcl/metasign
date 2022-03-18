@@ -12,13 +12,12 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
 import { Textarea } from '@nextui-org/react'
+import { useState } from "react";
 import { TileDocument } from '@ceramicnetwork/stream-tile';
 import { WalletConnectProvider } from '@walletconnect/web3-provider';
 import Web3Modal from "web3modal";
 
 export default function Home(props) {
-  // const [state, dispatch] = useReducer(reducer, initialState)
-  // const { provider, web3Provider, address, chainId } = state
   const infuraId = process.env.NEXT_PUBLIC_ENV_LOCAL_INFURA_ID;
 
   // Instantiate Ceramic HTTP client.
@@ -96,15 +95,19 @@ export default function Home(props) {
 
   // This function creates documents of all types.
   const createDocument = async (content, schema) => {
-    // Check whether the passed schema exists. 
-     
+
+    console.log("ceramic.did: ", ceramic.did);
     const document = await TileDocument.create(ceramic, content, { schema })
+
+    setTextOutput({value: document.id})
     return document.id
   }
 
   // Schema creation.
   const createUserProfileSchema = async () => {
-        // First we need to create a schema.
+        if (ceramic.did === undefined) {
+          await authenticate();
+        }
         const userSchema = await TileDocument.create(ceramic, {
           $schema: 'http://json-schema.org/draft-07/schema#',
           title: 'UserSchema',
@@ -125,24 +128,32 @@ export default function Home(props) {
   }
 
   const createDeviceProfileSchema = async () => {
-            // First we need to create a schema.
-            const deviceSchema = await TileDocument.create(ceramic, {
-              $schema: 'http://json-schema.org/draft-07/schema#',
-              title: 'DeviceSchema',
-              type: 'object',
-              properties: {
-                name: {
-                  type: 'string',
-                  maxLength: 150.
-                },
-              },
-              required: ['deviceName'],
-            })
-    
-            console.log("deviceSchema: ", deviceSchema);
-            console.log("deviceSchema.commitID ", deviceSchema.commitId);
-    
-            return deviceSchema.commitID
+    if (ceramic.did === undefined) {
+      await authenticate();
+    }
+      const deviceSchema = await TileDocument.create(ceramic, {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'DeviceSchema',
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            maxLength: 150.
+          },
+        },
+        required: ['deviceName'],
+      })
+
+      console.log("deviceSchema: ", deviceSchema);
+      console.log("deviceSchema.commitID ", deviceSchema.commitId);
+
+      return deviceSchema.commitID
+  }
+
+  const [textOutput, setTextOutput] = useState("");
+
+  const handleTextChange = (event) => {
+    setTextOutput({value: "Text has changed"})
   }
 
   return (
@@ -163,7 +174,7 @@ export default function Home(props) {
               </Button.Group>
             </Grid>
             <Grid xs={12}>
-              <Textarea readOnly label="Output text appears here."/>
+              <Textarea readOnly label="Output text appears here." value={textOutput.value} onChange={handleTextChange}/>
             </Grid>
         </Grid.Container>
       {/* </main> */}

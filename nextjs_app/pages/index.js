@@ -1,14 +1,17 @@
+import { Button } from '@nextui-org/react'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { DID } from 'dids'
 import { DataModel } from '@glazed/datamodel'
 import { DIDDataStore } from '@glazed/did-datastore' // This implements the Identity Index (IDX) protocol and allows Ceramic tiles to be associated with a DID.
 import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
 import { getResolver as getKeyResolver } from 'key-did-resolver'
+import { Grid, Spacer } from '@nextui-org/react';
 import { ethers } from 'ethers'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
+import { Textarea } from '@nextui-org/react'
 import { TileDocument } from '@ceramicnetwork/stream-tile';
 import { WalletConnectProvider } from '@walletconnect/web3-provider';
 import Web3Modal from "web3modal";
@@ -79,18 +82,28 @@ export default function Home(props) {
     console.log(ceramic.did);
   }
 
-  const createUserDocument= async (content, schema) => {
-    const schemaID = await createSchemaDocument()
-    const documentID = await createDocument({ name: 'User 1' }, schemaID);
+  const createUserProfile = async () => {
+    const schemaID = await createUserProfileSchema()
+    const documentID = await createDocument({ name: 'User 1' }, schemaID)
     console.log("documentID: ", documentID);
   }
 
+  const createDeviceProfile = async () => {
+    const schemaID = await createDeviceProfileSchema()
+    const documentID = await createDocument({ deviceName: 'Device 1' }, schemaID)
+    console.log("documentID: ", documentID);
+  }
+
+  // This function creates documents of all types.
   const createDocument = async (content, schema) => {
+    // Check whether the passed schema exists. 
+     
     const document = await TileDocument.create(ceramic, content, { schema })
     return document.id
   }
 
-  const createSchemaDocument = async () => {
+  // Schema creation.
+  const createUserProfileSchema = async () => {
         // First we need to create a schema.
         const userSchema = await TileDocument.create(ceramic, {
           $schema: 'http://json-schema.org/draft-07/schema#',
@@ -111,11 +124,11 @@ export default function Home(props) {
         return userSchema.commitID
   }
 
-  const createDeviceSchemaDocument = async () => {
+  const createDeviceProfileSchema = async () => {
             // First we need to create a schema.
             const deviceSchema = await TileDocument.create(ceramic, {
               $schema: 'http://json-schema.org/draft-07/schema#',
-              title: 'UserSchema',
+              title: 'DeviceSchema',
               type: 'object',
               properties: {
                 name: {
@@ -140,10 +153,20 @@ export default function Home(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <button onClick={authenticate}>Authenticate</button>
-        <button onClick={createTileDocument}>Create Tile Document</button>
-      </main>
+      {/* <main className={styles.main}> */}
+        <Grid.Container gap={2} justify="center">
+            <Grid xs={12}>
+              <Button.Group color="gradient" ghost>
+                <Button onClick={authenticate}>Authenticate</Button>
+                <Button onClick={createUserProfile}>Create User Profile</Button>
+                <Button onClick={createDeviceProfile}>Create Device Profile</Button>
+              </Button.Group>
+            </Grid>
+            <Grid xs={12}>
+              <Textarea readOnly label="Output text appears here."/>
+            </Grid>
+        </Grid.Container>
+      {/* </main> */}
 
       <footer className={styles.footer}>
         <a

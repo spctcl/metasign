@@ -7,6 +7,10 @@ const userSchema = {
         type: 'string',
         maxLength: 150.
       },
+      userID: {
+        type: 'string',
+        maxLength: 32.
+      },
       ownedDevices: [
           {
             deviceID: 'string',
@@ -16,4 +20,4 @@ const userSchema = {
     },
     required: ['name'],
   }
-  export {userSchema};
+export {userSchema};

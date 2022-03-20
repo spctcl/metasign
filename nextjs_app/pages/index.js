@@ -87,9 +87,10 @@ export default function Home(props) {
 
   const createUserProfile = async () => {
     const schemaID = await createUserProfileSchema()
-    const documentContent = await createDocument({ name: 'Sam' }, schemaID)
-    setTextOutput({value: documentContent.name})
-    setAvatarName({value: documentContent.name})
+    const document = await createDocument({ name: 'Sam' }, schemaID)
+    console.log("document: ", document);
+    setAvatarName({value: document.content.name})
+    setUserOutput({value: document.content.name})
   }
 
   // const getUserProfile = async () => {
@@ -99,28 +100,33 @@ export default function Home(props) {
   const createDeviceProfile = async () => {
     const schemaID = await createDeviceProfileSchema()
     const deviceProfile = {
-      sensor:{
-        sensorOutput: {
-          name: "Temperature Sensor",
-          value: 45,
-          units: "Celsius"
-        },
-        sensorOutput: {
-          name: "Humidity Sensor",
-          value:22,
-          units: "Relative Humidity"
-        },
-        sensorOutput: {
-          name: "Pressure Sensor",
-          value: 759,
-          units: "mmHg"
-      },
+      sensor: {
+        sensorOutput: [
+          {
+            name: "Temperature Sensor",
+            value: 45,
+            units: "Celsius"
+          },
+          {
+            name: "Humidity Sensor",
+            value:22,
+            units: "Relative Humidity"
+          },
+          {
+            name: "Pressure Sensor",
+            value: 723,
+            units: "mmHg"
+          }
+        ],
         deviceName: "Jack's Sensor"
       }
     }
     const document = await createDocument(deviceProfile, schemaID)
     setDocumentId({value: document.id})
-    setDeviceContent({value: document.content.sensor.deviceName})
+    setDeviceName({value: document.content.sensor.deviceName})
+    setDeviceOutput({value: document.content.sensor.sensorOutput})
+    console.log("deviceOutput: ", deviceOutput);
+    console.log("document.content.sensor: ", document.content.sensor.deviceName);
     console.log("document.content.sensor: ", document.content.sensor);
   }
 
@@ -128,6 +134,7 @@ export default function Home(props) {
   const createDocument = async (content, schema) => {
     console.log("ceramic.did: ", ceramic.did);
     const document = await TileDocument.create(ceramic, content, { schema })
+    
     return document
   }
 
@@ -139,28 +146,32 @@ export default function Home(props) {
     console.log("updateDeviceProfile: document: ", document);
     console.log("document: ", document);
     const deviceProfile = {
-      sensor:{
-        sensorOutput: {
-          name: "Temperature Sensor",
-          value: 45,
-          units: "Celsius"
-        },
-        sensorOutput: {
-          name: "Humidity Sensor",
-          value:22,
-          units: "Relative Humidity"
-        },
-        sensorOutput: {
-          name: "Pressure Sensor",
-          value: 759,
-          units: "mmHg"
-        },
+      sensor: {
+        sensorOutput: [
+          {
+            name: "Temperature Sensor",
+            value: 45,
+            units: "Celsius"
+          },
+          {
+            name: "Humidity Sensor",
+            value:22,
+            units: "Relative Humidity"
+          },
+          {
+            name: "Pressure Sensor",
+            value: 759,
+            units: "mmHg"
+          }
+      ],
         deviceName: "Jane's Sensor"
       }
     }
     await document.update(deviceProfile)
-    console.log("document.content.deviceName: ", document.content.sensor.deviceName);
-    setDeviceContent({value: document.content.sensor.deviceName});
+    console.log("document.content.deviceName: ", document.content.sensor);
+    setDeviceName({value: document.content.sensor.deviceName});
+    setDeviceOutput({value: document.content.sensor.sensorOutput});
+    console.log("updateDeviceProfile deviceOutput: ", deviceOutput);
   }
 
   async function updateDocument() {
@@ -209,7 +220,7 @@ export default function Home(props) {
             type: "object",
             properties: {
               sensorOutput: {
-                type: "object",
+                type: "array",
                 properties: {
                   name: {
                     type: "string",
@@ -246,10 +257,12 @@ export default function Home(props) {
   }
 
   // State variables.
-  const [textOutput, setTextOutput] = useState("");
-  const [userName, setAvatarName] = useState("");
-  const [documentId, setDocumentId] = useState();
-  const [deviceContent, setDeviceContent] = useState("");
+  const [userOutput, setUserOutput] = useState("");
+  const [avatarName, setAvatarName] = useState("");
+  const [documentId, setDocumentId] = useState("");
+  const [deviceName, setDeviceName] = useState("");
+  const [deviceOutput, setDeviceOutput] = useState([]);
+
 
   const handleAvatarChange = (event) => {
     setAvatarName({value: "Avatar Name"})
@@ -257,6 +270,17 @@ export default function Home(props) {
 
   const handleTextChange = (event) => {
     setTextOutput({value: "Text has changed"})
+  }
+
+  const getFormattedOutput = () => {
+    let output = "";
+    if (deviceOutput.value !== undefined) {
+      deviceOutput.value.forEach(item => {
+        //let sensorList = ""
+        output += "Type: " + item.name + "\n" + "Value: " + item.value + " " + item.units + "\n\n"
+      });
+    }
+    return output
   }
 
   return (
@@ -271,7 +295,7 @@ export default function Home(props) {
         <Spacer y={1}/>
         <Grid.Container gap={2} justify="center">
           <Grid xs>
-            <Avatar text={userName.value} onChange={handleAvatarChange} color="gradient" size="xl" bordered squared />
+            <Avatar text={avatarName.value} onChange={handleAvatarChange} color="gradient" size="xl" bordered squared />
             <Container></Container>
             <Button onClick={authenticate}>Authenticate</Button>
           </Grid>
@@ -293,13 +317,13 @@ export default function Home(props) {
             <Grid xs="3">
             </Grid>
             <Grid xs="3">
-              <Textarea readOnly label="User:" value={textOutput.value} onChange={handleTextChange}/>
+              <Textarea readOnly label="User:" value={userOutput.value} onChange={handleTextChange}/>
             </Grid>
             <Grid xs="3">
-              <Textarea readOnly label="Device:" value={deviceContent.value}/>
+              <Textarea readOnly label="Device Name:" value={deviceName.value} />
             </Grid>
             <Grid xs="3">
-              <Textarea readOnly label="Device 2:" value={deviceContent.value}/>
+              <Textarea readOnly label="Device Output:" value={getFormattedOutput()}/>
             </Grid>
           </Grid.Container>
       {/* </main> */}

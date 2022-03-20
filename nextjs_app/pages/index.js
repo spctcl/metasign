@@ -142,36 +142,38 @@ export default function Home(props) {
     if (ceramic.did === undefined) {
       await authenticate();
     }
-    const document = await TileDocument.load(ceramic, documentId.value)
-    console.log("updateDeviceProfile: document: ", document);
-    console.log("document: ", document);
-    const deviceProfile = {
-      sensor: {
-        sensorOutput: [
-          {
-            name: "Temperature Sensor",
-            value: 45,
-            units: "Celsius"
-          },
-          {
-            name: "Humidity Sensor",
-            value:22,
-            units: "Relative Humidity"
-          },
-          {
-            name: "Pressure Sensor",
-            value: 759,
-            units: "mmHg"
-          }
-      ],
-        deviceName: "Jane's Sensor"
+    if (documentId.value !== undefined) {
+      const document = await TileDocument.load(ceramic, documentId.value)
+      console.log("updateDeviceProfile: document: ", document);
+      console.log("document: ", document);
+      const deviceProfile = {
+        sensor: {
+          sensorOutput: [
+            {
+              name: "Temperature Sensor",
+              value: 45,
+              units: "Celsius"
+            },
+            {
+              name: "Humidity Sensor",
+              value:22,
+              units: "Relative Humidity"
+            },
+            {
+              name: "Pressure Sensor",
+              value: 759,
+              units: "mmHg"
+            }
+        ],
+          deviceName: "Jane's Sensor"
+        }
       }
+      await document.update(deviceProfile)
+      console.log("document.content.deviceName: ", document.content.sensor);
+      setDeviceName({value: document.content.sensor.deviceName});
+      setDeviceOutput({value: document.content.sensor.sensorOutput});
+      console.log("updateDeviceProfile deviceOutput: ", deviceOutput);
     }
-    await document.update(deviceProfile)
-    console.log("document.content.deviceName: ", document.content.sensor);
-    setDeviceName({value: document.content.sensor.deviceName});
-    setDeviceOutput({value: document.content.sensor.sensorOutput});
-    console.log("updateDeviceProfile deviceOutput: ", deviceOutput);
   }
 
   async function updateDocument() {
@@ -314,16 +316,22 @@ export default function Home(props) {
           </Grid.Container>
           <Spacer y={2}/>
           <Grid.Container gap={2} justify="center">
-            <Grid xs="3">
+            <Grid xs="0">
             </Grid>
-            <Grid xs="3">
-              <Textarea readOnly label="User:" value={userOutput.value} onChange={handleTextChange}/>
+            <Grid xs="4">
+              <Container>
+                <Textarea readOnly label="User:" value={userOutput.value} onChange={handleTextChange} size="lg" minRows={1}/>
+              </Container>
             </Grid>
-            <Grid xs="3">
-              <Textarea readOnly label="Device Name:" value={deviceName.value} />
+            <Grid xs="4">
+              <Container>
+                <Textarea readOnly label="Device Name:" value={deviceName.value} size="lg" minRows={1}/>
+              </Container>
             </Grid>
-            <Grid xs="3">
-              <Textarea readOnly label="Device Output:" value={getFormattedOutput()}/>
+            <Grid xs="4">
+              <Container>
+                <Textarea readOnly label="Device Output:" value={getFormattedOutput()} size="lg" rows={20} minRows={10} />
+              </Container>
             </Grid>
           </Grid.Container>
       {/* </main> */}

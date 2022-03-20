@@ -92,30 +92,75 @@ export default function Home(props) {
     setAvatarName({value: documentContent.name})
   }
 
-  const getUserProfile = async () => {
-    return await dataStore.get('myDefinition', did)
-  }
+  // const getUserProfile = async () => {
+  //   return await dataStore.get('myDefinition', did)
+  // }
 
   const createDeviceProfile = async () => {
     const schemaID = await createDeviceProfileSchema()
-    const documentID = await createDocument({ deviceName: 'Device 1' }, schemaID)
-    console.log("documentID: ", documentID);
+    const deviceProfile = {
+      sensor:{
+        sensorOutput: {
+          name: "Temperature Sensor",
+          value: 45,
+          units: "Celsius"
+        },
+        sensorOutput: {
+          name: "Humidity Sensor",
+          value:22,
+          units: "Relative Humidity"
+        },
+        sensorOutput: {
+          name: "Pressure Sensor",
+          value: 759,
+          units: "mmHg"
+      },
+        deviceName: "Jack's Sensor"
+      }
+    }
+    const document = await createDocument(deviceProfile, schemaID)
+    setDocumentId({value: document.id})
+    setDeviceContent({value: document.content.sensor.deviceName})
+    console.log("document.content.sensor: ", document.content.sensor);
   }
 
   // This function creates documents of all types.
   const createDocument = async (content, schema) => {
     console.log("ceramic.did: ", ceramic.did);
     const document = await TileDocument.create(ceramic, content, { schema })
-    return document.content
+    return document
   }
 
   const updateDeviceProfile = async (content) => {
     if (ceramic.did === undefined) {
       await authenticate();
     }
-    const doc = await TileDocument.load(ceramic, documentId.value)
-    await doc.update({deviceName: 'Device 3'})
-    setDeviceContent({value: doc.content.deviceName});
+    const document = await TileDocument.load(ceramic, documentId.value)
+    console.log("updateDeviceProfile: document: ", document);
+    console.log("document: ", document);
+    const deviceProfile = {
+      sensor:{
+        sensorOutput: {
+          name: "Temperature Sensor",
+          value: 45,
+          units: "Celsius"
+        },
+        sensorOutput: {
+          name: "Humidity Sensor",
+          value:22,
+          units: "Relative Humidity"
+        },
+        sensorOutput: {
+          name: "Pressure Sensor",
+          value: 759,
+          units: "mmHg"
+        },
+        deviceName: "Jane's Sensor"
+      }
+    }
+    await document.update(deviceProfile)
+    console.log("document.content.deviceName: ", document.content.sensor.deviceName);
+    setDeviceContent({value: document.content.sensor.deviceName});
   }
 
   async function updateDocument() {
@@ -160,10 +205,27 @@ export default function Home(props) {
         title: 'DeviceSchema',
         type: 'object',
         properties: {
-          name: {
-            type: 'string',
-            maxLength: 150.
-          },
+          sensor: {
+            type: "object",
+            properties: {
+              sensorOutput: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    maxLength: 150
+                  },
+                  value: {
+                    type: "number"
+                  }
+                }
+              },
+              deviceName: {
+                type: "string",
+                maxLength: 150
+              }
+            }
+          }
         },
         required: ['deviceName'],
       })
@@ -237,7 +299,7 @@ export default function Home(props) {
               <Textarea readOnly label="Device:" value={deviceContent.value}/>
             </Grid>
             <Grid xs="3">
-              <Textarea readOnly label="Device:" value={deviceContent.value}/>
+              <Textarea readOnly label="Device 2:" value={deviceContent.value}/>
             </Grid>
           </Grid.Container>
       {/* </main> */}

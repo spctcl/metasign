@@ -1,11 +1,11 @@
-import { Button } from '@nextui-org/react'
+import { Avatar, Button } from '@nextui-org/react'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { DID } from 'dids'
 import { DataModel } from '@glazed/datamodel'
 import { DIDDataStore } from '@glazed/did-datastore' // This implements the Identity Index (IDX) protocol and allows Ceramic tiles to be associated with a DID.
 import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
 import { getResolver as getKeyResolver } from 'key-did-resolver'
-import { Grid, Spacer } from '@nextui-org/react';
+import { Container, Grid, Spacer, useTheme, Text } from '@nextui-org/react';
 import { ethers } from 'ethers'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -57,6 +57,10 @@ export default function Home(props) {
       }
     })
 
+    async function getMyDefinitionRecord(did) {
+      return await dataStore.get('myDefinition', did)
+    }
+
     // Connect using Web3Modal.
     const ethProvider = await web3Modal.connect();
     const addresses = await ethProvider.enable();
@@ -83,8 +87,13 @@ export default function Home(props) {
 
   const createUserProfile = async () => {
     const schemaID = await createUserProfileSchema()
-    const documentID = await createDocument({ name: 'User 1' }, schemaID)
-    console.log("documentID: ", documentID);
+    const documentContent = await createDocument({ name: 'Sam' }, schemaID)
+    setTextOutput({value: documentContent.name})
+    setAvatarName({value: documentContent.name})
+  }
+
+  const getUserProfile = async () => {
+    return await dataStore.get('myDefinition', did)
   }
 
   const createDeviceProfile = async () => {
@@ -95,13 +104,28 @@ export default function Home(props) {
 
   // This function creates documents of all types.
   const createDocument = async (content, schema) => {
-
     console.log("ceramic.did: ", ceramic.did);
     const document = await TileDocument.create(ceramic, content, { schema })
-
-    setTextOutput({value: document.id})
-    return document.id
+    return document.content
   }
+
+  const updateDeviceProfile = async (content) => {
+    if (ceramic.did === undefined) {
+      await authenticate();
+    }
+    const doc = await TileDocument.load(ceramic, documentId.value)
+    await doc.update({deviceName: 'Device 3'})
+    setDeviceContent({value: doc.content.deviceName});
+  }
+
+  async function updateDocument() {
+    if (ceramic.did === undefined) {
+      await authenticate();
+    }
+    console.log("updateDocument() document id: ", documentId)
+    const doc = await TileDocument.load(ceramic, documentId)
+    console.log("loaded doc: ", doc);
+  } 
 
   // Schema creation.
   const createUserProfileSchema = async () => {
@@ -144,13 +168,30 @@ export default function Home(props) {
         required: ['deviceName'],
       })
 
-      console.log("deviceSchema: ", deviceSchema);
+      console.log("deviceSchema.content: ", deviceSchema.content);
       console.log("deviceSchema.commitID ", deviceSchema.commitId);
 
       return deviceSchema.commitID
   }
 
+
+  // Helper methods.
+
+  const getUserName = async () => {
+    if (ceramic.did !== undefined) {
+      // TODO: Retrieve and return user name.
+    }
+  }
+
+  // State variables.
   const [textOutput, setTextOutput] = useState("");
+  const [userName, setAvatarName] = useState("");
+  const [documentId, setDocumentId] = useState();
+  const [deviceContent, setDeviceContent] = useState("");
+
+  const handleAvatarChange = (event) => {
+    setAvatarName({value: "Avatar Name"})
+  }
 
   const handleTextChange = (event) => {
     setTextOutput({value: "Text has changed"})
@@ -165,31 +206,43 @@ export default function Home(props) {
       </Head>
 
       {/* <main className={styles.main}> */}
+        <Spacer y={1}/>
         <Grid.Container gap={2} justify="center">
-            <Grid xs={12}>
-              <Button.Group color="gradient" ghost>
-                <Button onClick={authenticate}>Authenticate</Button>
-                <Button onClick={createUserProfile}>Create User Profile</Button>
-                <Button onClick={createDeviceProfile}>Create Device Profile</Button>
-              </Button.Group>
-            </Grid>
-            <Grid xs={12}>
-              <Textarea readOnly label="Output text appears here." value={textOutput.value} onChange={handleTextChange}/>
-            </Grid>
+          <Grid xs>
+            <Avatar text={userName.value} onChange={handleAvatarChange} color="gradient" size="xl" bordered squared />
+            <Container></Container>
+            <Button onClick={authenticate}>Authenticate</Button>
+          </Grid>
         </Grid.Container>
+        <Spacer y={2}/>
+        <Grid.Container gap={2} justify="center">
+          <Grid xs>
+          <Container></Container>
+            <Button.Group color="gradient" ghost>
+              <Button onClick={createUserProfile}>Create User Profile</Button>
+              <Button onClick={createDeviceProfile}>Create Device Profile</Button>
+              <Button onClick={updateDeviceProfile}>Update Device Profile</Button>
+            </Button.Group>
+          <Container></Container>
+          </Grid>
+          </Grid.Container>
+          <Spacer y={2}/>
+          <Grid.Container gap={2} justify="center">
+            <Grid xs="3">
+            </Grid>
+            <Grid xs="3">
+              <Textarea readOnly label="User:" value={textOutput.value} onChange={handleTextChange}/>
+            </Grid>
+            <Grid xs="3">
+              <Textarea readOnly label="Device:" value={deviceContent.value}/>
+            </Grid>
+            <Grid xs="3">
+              <Textarea readOnly label="Device:" value={deviceContent.value}/>
+            </Grid>
+          </Grid.Container>
       {/* </main> */}
 
       <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
       </footer>
     </div>
   )

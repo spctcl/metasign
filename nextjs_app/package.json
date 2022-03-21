@@ -12,6 +12,7 @@
     "@3id/connect": "^0.2.5",
     "@ceramicnetwork/3id-did-resolver": "^1.4.16",
     "@glazed/datamodel": "^0.2.0",
+    "@glazed/devtools": "^0.1.6",
     "@glazed/did-datastore": "^0.2.3",
     "@nextui-org/react": "^1.0.2-beta.4",
     "@walletconnect/web3-provider": "^1.7.5",

@@ -2,6 +2,7 @@ import { Avatar, Button } from '@nextui-org/react'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { DID } from 'dids'
 import { DataModel } from '@glazed/datamodel'
+import { ModelManager } from '@glazed/devtools'
 import { DIDDataStore } from '@glazed/did-datastore' // This implements the Identity Index (IDX) protocol and allows Ceramic tiles to be associated with a DID.
 import { getResolver as get3IDResolver } from '@ceramicnetwork/3id-did-resolver'
 import { getResolver as getKeyResolver } from 'key-did-resolver'
@@ -233,6 +234,8 @@ export default function Home(props) {
       console.log("deviceSchema.content: ", deviceSchema.content);
       console.log("deviceSchema.commitID ", deviceSchema.commitId);
 
+      await writeModel(ceramic,deviceSchema.commitId.toString())
+
       return deviceSchema.commitID
   }
 
@@ -258,6 +261,15 @@ export default function Home(props) {
   const handleTextChange = (event) => {
     setTextOutput({value: "Text has changed"})
   }
+
+  // publish the model
+async function writeModel(ceramic,schemaString) {
+    const manager = new ModelManager(ceramic)
+    await manager.usePublishedSchema('MySchema', 'ceramic://'+schemaString) 
+    const encodedModel = await manager.toJSON()
+    const clonedManager = ModelManager.fromJSON(ceramic, encodedModel)
+    await clonedManager.toPublished()
+}
 
   return (
     <div className={styles.container}>
